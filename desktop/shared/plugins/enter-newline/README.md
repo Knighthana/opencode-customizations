@@ -11,15 +11,16 @@ OpenCode Desktop GUI 插件：把输入框改成
 | 补全列表打开时的 `Enter`    | 仍然选中列表项                             |
 | 中文输入法组词时的 `Enter`  | 仍然确认候选词                             |
 
-这是 [`opencode-customizations`](../../README.md) 仓库里的一个插件，插件 id 为
-`enter-newline`（由目录名决定）。
+这是 [`opencode-customizations`](../../../../README.md) 仓库里的一个插件，位于
+**Desktop / shared**（Windows、macOS、Linux 共用同一套插件逻辑），插件 id 为
+`enter-newline`（由目录名决定）。安装/自检脚本目前只在 Windows 上验证。
 
 ## 安装
 
 在仓库根目录执行：
 
 ```powershell
-pwsh -File .\plugins\enter-newline\install.ps1
+pwsh -File .\desktop\shared\plugins\enter-newline\install.ps1
 ```
 
 脚本会把插件的绝对路径合并进全局配置：
@@ -36,13 +37,13 @@ pwsh -File .\plugins\enter-newline\install.ps1
 卸载：
 
 ```powershell
-pwsh -File .\plugins\enter-newline\install.ps1 -Uninstall
+pwsh -File .\desktop\shared\plugins\enter-newline\install.ps1 -Uninstall
 ```
 
 ## 自检
 
 ```powershell
-pwsh -File .\plugins\enter-newline\verify.ps1 -Deep
+pwsh -File .\desktop\shared\plugins\enter-newline\verify.ps1 -Deep
 ```
 
 检查内容：
@@ -54,12 +55,12 @@ pwsh -File .\plugins\enter-newline\verify.ps1 -Deep
 - `app.asar` 里插件依赖的 DOM 标记是否仍然存在。
 
 全部 `PASS` 说明当前 Desktop 版本仍兼容。`FAIL` 的处理见
-[`docs/compatibility.md`](../../docs/compatibility.md)。
+[`docs/compatibility.md`](../../../../docs/compatibility.md)。
 
 ## 行为测试
 
 ```powershell
-pwsh -File .\tests\enter-newline\test.ps1
+pwsh -File .\desktop\shared\plugins\enter-newline\tests\test.ps1
 ```
 
 用无头 Chrome/Edge 加载插件，验证命令注册、Enter 换行、Ctrl+Enter 提交、
@@ -118,11 +119,14 @@ GUI 插件命令在 `document` 的捕获阶段监听按键，并支持：
 ## 目录
 
 ```
-plugins/enter-newline/
+desktop/shared/plugins/enter-newline/
 ├─ gui-experimental.cjs   插件本体（CommonJS，无构建步骤）
 ├─ install.ps1            安装/卸载
 ├─ verify.ps1             安装状态与兼容性自检
-└─ README.md
+├─ README.md
+└─ tests/
+   ├─ harness.html
+   └─ test.ps1
 ```
 
 `enter-newline` 目录名就是插件 id。Desktop 按“本地目录 + 根目录下的
@@ -149,4 +153,4 @@ plugins/enter-newline/
 - 运行中的回合里，App 自带的 “Steer/Queue ⌘⏎” 提示文字仍可能出现；实际
   `Ctrl+Enter` 执行普通发送；
 - 目前只在 OpenCode Desktop `2.3.0` 上做了完整验证（见
-  [`docs/compatibility.md`](../../docs/compatibility.md)）。
+  [`docs/compatibility.md`](../../../../docs/compatibility.md)）。

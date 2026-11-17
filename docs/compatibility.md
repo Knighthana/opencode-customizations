@@ -2,15 +2,15 @@
 
 ## Verified
 
-| 自定义 | OpenCode Desktop | opencode CLI | 平台 | 验证日期 | 结果 |
-| --- | --- | --- | --- | --- | --- |
-| `enter-newline` 1.0.0 | 2.3.0 | 2.3.0 | Windows | 2026-11-18 | 通过 |
+| 自定义 | 目标 | OpenCode Desktop | opencode CLI | 平台 | 验证日期 | 结果 |
+| --- | --- | --- | --- | --- | --- | --- |
+| `enter-newline` 1.0.0 | Desktop / shared | 2.3.0 | 2.3.0 | Windows | 2026-11-18 | 通过 |
 
 验证方式：
 
 ```powershell
-pwsh -File .\plugins\enter-newline\verify.ps1 -Deep
-pwsh -File .\tests\enter-newline\test.ps1
+pwsh -File .\desktop\shared\plugins\enter-newline\verify.ps1 -Deep
+pwsh -File .\desktop\shared\plugins\enter-newline\tests\test.ps1
 ```
 
 `verify.ps1 -Deep` 会检查插件依赖的 `app.asar` 内部标记：
@@ -37,8 +37,8 @@ pwsh -File .\tests\enter-newline\test.ps1
 4. 改完插件后重新跑：
 
 ```powershell
-pwsh -File .\tests\enter-newline\test.ps1
-pwsh -File .\plugins\enter-newline\verify.ps1 -Deep
+pwsh -File .\desktop\shared\plugins\enter-newline\tests\test.ps1
+pwsh -File .\desktop\shared\plugins\enter-newline\verify.ps1 -Deep
 ```
 
 ## 兼容性策略

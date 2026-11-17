@@ -112,9 +112,9 @@ opencode-cli.exe api get "/api/plugin/gui?id=<id>"
    ```
 
 5. 如果 DOM 标记变了：
-   - 更新 `plugins/enter-newline/gui-experimental.cjs` 里的
+   - 更新 `desktop/shared/plugins/enter-newline/gui-experimental.cjs` 里的
      `COMPOSER` / `EDITOR` / `[data-suggestion-id]`；
-   - 跑 `tests\enter-newline\test.ps1`；
+   - 跑 `desktop\shared\plugins\enter-newline\tests\test.ps1`；
    - 再跑 `verify.ps1 -Deep`。
 
 ## 调查 app.asar 的小工具

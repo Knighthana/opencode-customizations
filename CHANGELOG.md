@@ -4,11 +4,12 @@
 
 - 仓库重定义为 `opencode-customizations`：用于收集可分享、可交付的 OpenCode /
   OpenCode Desktop 自定义，而不是只服务单个插件。
-- `enter-newline` 移动到 `plugins/enter-newline/`，插件 id 保持
+- 按作用对象分目录：`desktop/shared`、`desktop/windows|macos|linux`、
+  `cli-tui`、`mobile`、`web`；规则见 `docs/targets.md`。
+- `enter-newline` 移动到 `desktop/shared/plugins/enter-newline/`，插件 id 保持
   `enter-newline`。
-- 安装/自检脚本跟着插件走：`plugins/enter-newline/install.ps1`、
-  `plugins/enter-newline/verify.ps1`。
-- 测试移动到 `tests/enter-newline/`。
+- 安装/自检/测试跟随条目：`install.ps1`、`verify.ps1`、`tests/` 都在条目目录内。
+- 新增 `desktop/README.md`、各目标目录的 `README.md`（占位分类说明）。
 - 新增 `docs/compatibility.md`（Desktop 版本矩阵、升级流程）和
   `docs/desktop-internals.md`（app.asar、GUI 插件加载、composer DOM、
   设置存储等调查笔记）。

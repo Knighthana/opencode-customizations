@@ -1,6 +1,6 @@
 # Runs the plugin's behaviour tests in a headless Chromium browser.
 #
-#   pwsh -File .\tests\test.ps1
+#   pwsh -File .\desktop\shared\plugins\enter-newline\tests\test.ps1
 #
 # Requires Chrome or Edge. Exit code 0 = all tests passed.
 
@@ -9,8 +9,8 @@ param()
 
 $ErrorActionPreference = "Stop"
 
-$repoRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
-$pluginFile = Join-Path $repoRoot "plugins\enter-newline\gui-experimental.cjs"
+$pluginDir = Split-Path -Parent $PSScriptRoot
+$pluginFile = Join-Path $pluginDir "gui-experimental.cjs"
 $harness = Join-Path $PSScriptRoot "harness.html"
 
 $browsers = @(

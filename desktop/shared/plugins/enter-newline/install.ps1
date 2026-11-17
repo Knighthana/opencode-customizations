@@ -1,10 +1,10 @@
 # Installs (or uninstalls) the Enter-newline GUI plugin in the global
 # OpenCode Desktop configuration.
 #
-#   pwsh -File .\scripts\install.ps1
-#   pwsh -File .\scripts\install.ps1 -Uninstall
+#   pwsh -File .\desktop\shared\plugins\enter-newline\install.ps1
+#   pwsh -File .\desktop\shared\plugins\enter-newline\install.ps1 -Uninstall
 #
-# The plugin lives in ..\enter-newline and is referenced by its absolute path,
+# The plugin lives beside this script and is referenced by its absolute path,
 # so editing it here needs no reinstall.
 
 [CmdletBinding()]

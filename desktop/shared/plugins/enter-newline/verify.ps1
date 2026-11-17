@@ -1,8 +1,8 @@
 # Checks that the installed OpenCode Desktop still loads this plugin, and with
 # -Deep, that the app internals the plugin hooks into still exist.
 #
-#   pwsh -File .\scripts\verify.ps1
-#   pwsh -File .\scripts\verify.ps1 -Deep
+#   pwsh -File .\desktop\shared\plugins\enter-newline\verify.ps1
+#   pwsh -File .\desktop\shared\plugins\enter-newline\verify.ps1 -Deep
 #
 # Exit code 0 = everything passed, 1 = something needs attention.
 
