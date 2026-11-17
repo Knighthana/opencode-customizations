@@ -1,7 +1,7 @@
 # Test/verify byproducts
 *.tmp
 *.log
-tests/*.tmp.html
+tests/**/*.tmp.html
 
 # Editor / OS noise
 .vscode/

@@ -14,8 +14,7 @@ param(
 
 $ErrorActionPreference = "Stop"
 
-$repoRoot = Split-Path -Parent $PSScriptRoot
-$pluginDir = Join-Path $repoRoot "enter-newline"
+$pluginDir = $PSScriptRoot
 $pluginFile = Join-Path $pluginDir "gui-experimental.cjs"
 $configDir = Join-Path $HOME ".config\opencode"
 $configPath = Join-Path $configDir "opencode.json"

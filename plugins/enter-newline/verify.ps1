@@ -13,8 +13,8 @@ param(
 
 $ErrorActionPreference = "Stop"
 
-$repoRoot = Split-Path -Parent $PSScriptRoot
-$pluginFile = Join-Path $repoRoot "enter-newline\gui-experimental.cjs"
+$pluginDir = $PSScriptRoot
+$pluginFile = Join-Path $pluginDir "gui-experimental.cjs"
 $configPath = Join-Path $HOME ".config\opencode\opencode.json"
 $desktopRoot = Join-Path $env:LOCALAPPDATA "Programs\ai.opencode.desktop"
 $cli = Join-Path $desktopRoot "resources\opencode-cli.exe"
@@ -103,7 +103,7 @@ if (Test-Path -LiteralPath $cli) {
 Add-Check "Plugin file present" (Test-Path -LiteralPath $pluginFile) $pluginFile
 Add-Check "Global config present" (Test-Path -LiteralPath $configPath) $configPath
 
-$pluginPath = (Resolve-Path -LiteralPath (Join-Path $repoRoot "enter-newline")).Path -replace "\\", "/"
+$pluginPath = (Resolve-Path -LiteralPath $pluginDir).Path -replace "\\", "/"
 $configured = $false
 
 if (Test-Path -LiteralPath $configPath) {
