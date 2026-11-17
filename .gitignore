@@ -1,0 +1,10 @@
+# Test/verify byproducts
+*.tmp
+*.log
+tests/*.tmp.html
+
+# Editor / OS noise
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

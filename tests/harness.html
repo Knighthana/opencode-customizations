@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>enter-newline plugin tests</title>
+  </head>
+  <body>
+    <form data-component="composer" id="form">
+      <div data-component="composer-editor" contenteditable="true" id="editor">hello</div>
+      <button type="button" data-action="composer-submit" id="submit">send</button>
+    </form>
+    <pre id="results">pending</pre>
+
+    <script>
+      var results = []
+
+      function assert(name, ok, detail) {
+        results.push((ok ? "PASS " : "FAIL ") + name + (detail ? " :: " + String(detail) : ""))
+      }
+
+      var module = { exports: {} }
+      var exports = module.exports
+
+      function require(name) {
+        if (name !== "@opencode/plugin/gui") throw new Error("unexpected require: " + name)
+
+        return {
+          Plugin: {
+            define: function (plugin) {
+              return plugin
+            },
+          },
+          Command: {},
+        }
+      }
+
+      /*__PLUGIN_SOURCE__*/
+
+      var definition = module.exports
+      var commands = []
+      var model = {
+        t: function (key) {
+          return key
+        },
+        add: function (registry, create) {
+          commands.push(create())
+        },
+      }
+
+      assert("bundle exports a setup", typeof definition.setup === "function")
+
+      var cleanup = definition.setup(model)
+
+      assert("setup returns a cleanup", typeof cleanup === "function")
+
+      var newline = commands.filter(function (command) {
+        return command.id === "newline"
+      })[0]
+      var send = commands.filter(function (command) {
+        return command.id === "send"
+      })[0]
+
+      assert("newline command exists", !!newline)
+      assert("newline binds Enter", newline && newline.bind === "enter", newline && newline.bind)
+      assert("newline is editable", newline && newline.editable === true)
+      assert(
+        "newline is scoped to the composer",
+        newline && newline.scope === '[data-component="composer"]',
+        newline && newline.scope,
+      )
+      assert("send command exists", !!send)
+      assert("send binds mod+Enter", send && send.bind === "mod+enter", send && send.bind)
+      assert("send is editable", send && send.editable === true)
+
+      var form = document.getElementById("form")
+      var editor = document.getElementById("editor")
+      var submits = 0
+
+      form.addEventListener("submit", function (event) {
+        event.preventDefault()
+        submits++
+      })
+
+      function focusEditor(text) {
+        editor.innerHTML = text || ""
+        editor.focus()
+
+        var range = document.createRange()
+        range.selectNodeContents(editor)
+        range.collapse(false)
+
+        var selection = window.getSelection()
+        selection.removeAllRanges()
+        selection.addRange(range)
+      }
+
+      focusEditor("hello")
+      submits = 0
+
+      var handled = newline.run()
+
+      assert("Enter is handled", handled === undefined || handled === true, handled)
+      assert("Enter inserts a line break", !!editor.querySelector("br"))
+      assert("Enter does not submit", submits === 0, submits)
+
+      focusEditor("hello")
+      submits = 0
+      send.run()
+
+      assert("Ctrl+Enter submits once", submits === 1, submits)
+
+      var popoverRow = document.createElement("button")
+      popoverRow.setAttribute("data-suggestion-id", "suggestion-1")
+
+      focusEditor("hello")
+      form.parentElement.appendChild(popoverRow)
+      submits = 0
+      var beforePopover = editor.innerHTML
+      var popoverResult = newline.run()
+
+      assert("Enter is declined while the suggestion popover is open", popoverResult === false, popoverResult)
+      assert("...and does not change the editor", editor.innerHTML === beforePopover)
+
+      var popoverSendResult = send.run()
+
+      assert("Ctrl+Enter is declined while the suggestion popover is open", popoverSendResult === false)
+      assert("...and does not submit", submits === 0, submits)
+
+      popoverRow.remove()
+
+      editor.blur()
+      var blurResult = newline.run()
+
+      assert("Enter is declined outside the editor", blurResult === false, blurResult)
+
+      focusEditor("hello")
+      var beforeComposition = editor.innerHTML
+
+      document.dispatchEvent(new CompositionEvent("compositionstart"))
+
+      var compositionResult = newline.run()
+
+      assert("Enter is declined during IME composition", compositionResult === false, compositionResult)
+      assert("...and does not change the editor", editor.innerHTML === beforeComposition)
+
+      document.dispatchEvent(new CompositionEvent("compositionend"))
+
+      focusEditor("hello")
+      var afterComposition = newline.run()
+
+      assert("Enter works again after composition ends", afterComposition === undefined || afterComposition === true)
+      assert("...and inserts a line break", !!editor.querySelector("br"))
+
+      cleanup()
+
+      document.getElementById("results").textContent = results.join("\n")
+    </script>
+  </body>
+</html>
