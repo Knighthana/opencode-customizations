@@ -1,11 +1,12 @@
 # Installs (or uninstalls) the Enter-newline GUI plugin in the global
 # OpenCode Desktop configuration.
 #
-#   pwsh -File .\desktop\shared\plugins\enter-newline\install.ps1
-#   pwsh -File .\desktop\shared\plugins\enter-newline\install.ps1 -Uninstall
+#   powershell -File .\desktop\shared\plugins\enter-newline\install.ps1
+#   pwsh        -File .\desktop\shared\plugins\enter-newline\install.ps1
 #
-# The plugin lives beside this script and is referenced by its absolute path,
-# so editing it here needs no reinstall.
+# Both the Windows PowerShell 5.1 that ships with Windows and PowerShell 7+
+# work. The plugin lives beside this script and is referenced by its absolute
+# path, so editing it here needs no reinstall.
 
 [CmdletBinding()]
 param(
@@ -13,6 +14,14 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
+
+$compat = Join-Path $PSScriptRoot "_compat.ps1"
+
+if (-not (Test-Path -LiteralPath $compat)) {
+  throw "shared helper not found: $compat"
+}
+
+. $compat
 
 $pluginDir = $PSScriptRoot
 $pluginFile = Join-Path $pluginDir "gui-experimental.cjs"
@@ -49,7 +58,8 @@ precedence. Add this entry to the `plugins` array in that file by hand:
 
   "$((Resolve-Path -LiteralPath $pluginDir).Path -replace '\\', '/')"
 
-Then run: pwsh -File "$PSCommandPath"
+Then re-run this installer (powershell or pwsh both work):
+  powershell -File "$PSCommandPath"
 "@
 }
 
@@ -61,10 +71,10 @@ New-Item -ItemType Directory -Force -Path $configDir | Out-Null
 $config = $null
 
 if (Test-Path -LiteralPath $configPath) {
-  $raw = Get-Content -LiteralPath $configPath -Raw
+  $raw = Read-Utf8Text $configPath
 
   try {
-    $config = $raw | ConvertFrom-Json -AsHashtable
+    $config = ConvertFrom-JsonHashtable $raw
   } catch {
     throw "Could not parse $configPath as JSON. Add this path to `plugins` by hand instead: $pluginPath"
   }
@@ -109,7 +119,7 @@ if ($Uninstall) {
 }
 
 $json = $config | ConvertTo-Json -Depth 100
-Set-Content -LiteralPath $configPath -Value $json -Encoding utf8
+Write-Utf8Text $configPath $json
 
 Write-Host ""
 Write-Host "Current plugins:"
@@ -148,7 +158,8 @@ if ($Uninstall) {
 
 Write-Host "Next steps:"
 Write-Host "  1. Reload the Desktop window (Ctrl+R), or restart OpenCode Desktop."
-Write-Host "  2. Run: pwsh -File `"$PSScriptRoot\verify.ps1`" -Deep"
+Write-Host "  2. Run: powershell -File `"$PSScriptRoot\verify.ps1`" -Deep"
+Write-Host "     (PowerShell 7 users can substitute pwsh.)"
 Write-Host ""
 Write-Host "Expected behaviour in the prompt composer:"
 Write-Host "  Enter            newline"

@@ -14,7 +14,9 @@ shared/plugins/<id>/
 ```
 
 平台差异用条目 README 里的表格说明，例如“插件 JS 全平台、安装/自检脚本目前只在
-Windows 验证”。如果某个平台需要完全不同的代码或安装方式，再放
+Windows 验证”。Windows 脚本应同时支持系统自带的 Windows PowerShell 5.1 和
+PowerShell 7+，把宿主差异放进条目内的兼容层（`_compat.ps1`）。如果某个平台
+需要完全不同的代码或安装方式，再放
 [`../windows`](../windows/README.md)、[`../macos`](../macos/README.md) 或
 [`../linux`](../linux/README.md)。
 

@@ -31,17 +31,20 @@
 ## 快速开始
 
 ```powershell
-# 安装 enter-newline
-pwsh -File .\desktop\shared\plugins\enter-newline\install.ps1
+# 安装 enter-newline（Windows 自带的 PowerShell 5.1 即可，不需要 pwsh 7）
+powershell -File .\desktop\shared\plugins\enter-newline\install.ps1
 
 # 让 Desktop 重新加载：先在窗口里按 Ctrl+R；没变化就重启 Desktop
 
 # 自检（含 Desktop app.asar 的内部标记）
-pwsh -File .\desktop\shared\plugins\enter-newline\verify.ps1 -Deep
+powershell -File .\desktop\shared\plugins\enter-newline\verify.ps1 -Deep
 
 # 行为测试（无头 Chrome/Edge）
-pwsh -File .\desktop\shared\plugins\enter-newline\tests\test.ps1
+powershell -File .\desktop\shared\plugins\enter-newline\tests\test.ps1
 ```
+
+安装/自检/测试脚本同时支持 `powershell`（5.1）和 `pwsh`（7+），把上面的
+`powershell` 换成 `pwsh` 即可。
 
 ## 仓库结构
 
@@ -55,6 +58,7 @@ opencode-customizations/
 │  │        ├─ gui-experimental.cjs
 │  │        ├─ install.ps1
 │  │        ├─ verify.ps1
+│  │        ├─ _compat.ps1
 │  │        ├─ README.md
 │  │        └─ tests/
 │  ├─ windows/README.md
@@ -84,15 +88,19 @@ opencode-customizations/
 - `verify` 至少检查文件、配置、服务端/客户端加载；依赖 App 内部结构的再加
   `-Deep` 检查；
 - 在目标目录 README 和根 README 的表格里登记新条目；
-- 在 `docs/compatibility.md` 记录验证过的版本。
+- 兼容性以 `verify.* -Deep` 的结构检查为准，`docs/compatibility.md` 只记录
+  历史验证样本，不维护版本白名单。
 
 ## 兼容性
 
-当前验证环境：**OpenCode Desktop 2.3.0 / opencode CLI 2.3.0（Windows）**。
+已验证：**OpenCode Desktop 2.3.0 / 2.3.2，opencode CLI 2.3.0 / 2.3.2（Windows）**。
 
-Desktop 的 GUI 插件 API（`@opencode/plugin/gui`）目前是 experimental；依赖
-`app.asar` 内部 DOM 标记的插件会随 Desktop 升级而变化。升级后请跑对应条目的
-`verify.ps1 -Deep`。
+兼容性不由版本号决定：`verify.ps1 -Deep` 直接检查插件依赖的
+GUI 插件端点和 `app.asar` 内部 DOM 标记，全绿即兼容。Desktop 升级后跑一次自检
+即可，不需要维护版本白名单。
+
+Desktop 的 GUI 插件 API（`@opencode/plugin/gui`）目前是 experimental；如果这些
+内部结构变化，插件会退回默认按键行为，不会让 Desktop 无法启动。
 
 详见 [`docs/compatibility.md`](docs/compatibility.md) 和
 [`docs/desktop-internals.md`](docs/desktop-internals.md)。

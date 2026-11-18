@@ -1,7 +1,8 @@
 # OpenCode Desktop internals（调查笔记）
 
 这份笔记记录做 `enter-newline` 时确认过的 Desktop 结构，方便下次升级后快速定位，
-而不是重新翻一遍 `app.asar`。内容对应 **OpenCode Desktop 2.3.0 / CLI 2.3.0**。
+而不是重新翻一遍 `app.asar`。内容对应 **OpenCode Desktop 2.3.0 / 2.3.2**，
+CLI 2.3.0 / 2.3.2。
 
 ## 安装位置（Windows）
 
@@ -74,6 +75,19 @@ opencode-cli.exe api get "/api/plugin/gui?id=<id>"
   - `Mod+Enter`：`submit({ alternate: true })`（steer/queue 交替投递）
   - `onBeforeInput` 把 `insertParagraph` 换成
     `document.execCommand("insertLineBreak")`，这也是插件换行采用的同一手法。
+
+### 2.3.2 复核（2026-11-18）
+
+- DOM 标记与上面的结构一致：`data-component="composer"`、
+  `data-component="composer-editor"`、`data-suggestion-id`、
+  `data-action="composer-submit"` 都还在。
+- `onBeforeInput` 仍然把 `insertParagraph` 换成
+  `document.execCommand("insertLineBreak")`。
+- 变化：输入框的 `keydown` 入口先委托给 `controller.onKeyDown(event, height)`
+  状态机，纯 Enter 的发送分支不再直接写在同一处（`app.asar` 内偏移约
+  150,160,975，2.3.0 时约 147,569,700）。
+- 影响：只依赖 asar 偏移/函数形状的改法（例如直接改 bundle 的字节补丁）每次
+  更新都要重新定位；GUI 插件只依赖标记，因此 2.3.0 → 2.3.2 无需修改。
 
 ## 设置存储
 

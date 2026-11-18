@@ -50,6 +50,8 @@
 - [ ] 条目 README 写明：作用、平台支持、安装、卸载、限制。
 - [ ] `install` 只合并必要配置，并备份原文件。
 - [ ] `verify` 至少检查：文件存在、配置指向、服务端/客户端能加载。
+- [ ] Windows 脚本同时支持 Windows PowerShell 5.1（系统自带）和 PowerShell 7+。
 - [ ] 能自动测试的行为放进 `tests/`。
 - [ ] 在目标目录的 README 和根 README 的表格里登记。
-- [ ] 在 `docs/compatibility.md` 记录验证过的版本。
+- [ ] 兼容性以 `verify -Deep` 的结构检查为准；验证样本追加到
+      `docs/compatibility.md`，不维护版本白名单。

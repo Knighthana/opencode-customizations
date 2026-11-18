@@ -1,10 +1,15 @@
 # Checks that the installed OpenCode Desktop still loads this plugin, and with
 # -Deep, that the app internals the plugin hooks into still exist.
 #
-#   pwsh -File .\desktop\shared\plugins\enter-newline\verify.ps1
-#   pwsh -File .\desktop\shared\plugins\enter-newline\verify.ps1 -Deep
+#   powershell -File .\desktop\shared\plugins\enter-newline\verify.ps1 -Deep
+#   pwsh        -File .\desktop\shared\plugins\enter-newline\verify.ps1 -Deep
 #
 # Exit code 0 = everything passed, 1 = something needs attention.
+#
+# Compatibility is decided by these structural checks, not by a list of
+# supported versions: the plugin only needs a handful of DOM markers and Web
+# APIs. The Desktop and CLI versions are printed for diagnostics only, so a new
+# OpenCode release does not require updating a version table here.
 
 [CmdletBinding()]
 param(
@@ -13,10 +18,19 @@ param(
 
 $ErrorActionPreference = "Stop"
 
+$compat = Join-Path $PSScriptRoot "_compat.ps1"
+
+if (-not (Test-Path -LiteralPath $compat)) {
+  throw "shared helper not found: $compat"
+}
+
+. $compat
+
 $pluginDir = $PSScriptRoot
 $pluginFile = Join-Path $pluginDir "gui-experimental.cjs"
 $configPath = Join-Path $HOME ".config\opencode\opencode.json"
 $desktopRoot = Join-Path $env:LOCALAPPDATA "Programs\ai.opencode.desktop"
+$desktopExe = Join-Path $desktopRoot "OpenCode.exe"
 $cli = Join-Path $desktopRoot "resources\opencode-cli.exe"
 $asar = Join-Path $desktopRoot "resources\app.asar"
 
@@ -54,7 +68,7 @@ function Invoke-NativeText([string]$File, [string[]]$Arguments) {
     Start-Process -FilePath $File -ArgumentList $Arguments -NoNewWindow -Wait `
       -RedirectStandardOutput $stdout -RedirectStandardError $stderr | Out-Null
 
-    return Get-Content -LiteralPath $stdout -Raw -Encoding utf8
+    return Read-Utf8Text $stdout
   } finally {
     Remove-Item -LiteralPath $stdout, $stderr -Force -ErrorAction SilentlyContinue
   }
@@ -76,7 +90,7 @@ function Test-AsarPattern([string]$Path, [string]$Pattern) {
       if ($read -le 0) { return $false }
 
       $total = $carry + $read
-      $text = [Text.Encoding]::Latin1.GetString($buffer, 0, $total)
+      $text = Get-Latin1Text $buffer 0 $total
 
       if ($text.IndexOf($Pattern, [StringComparison]::Ordinal) -ge 0) { return $true }
 
@@ -92,6 +106,11 @@ $desktopOk = (Test-Path -LiteralPath $cli) -and (Test-Path -LiteralPath $asar)
 Add-Check "OpenCode Desktop installed" $desktopOk $desktopRoot
 
 $version = ""
+$desktopVersion = if (Test-Path -LiteralPath $desktopExe) {
+  (Get-Item -LiteralPath $desktopExe).VersionInfo.ProductVersion
+} else {
+  "unknown"
+}
 
 if (Test-Path -LiteralPath $cli) {
   $version = (Invoke-NativeText $cli @("--version")).Trim()
@@ -108,7 +127,7 @@ $configured = $false
 
 if (Test-Path -LiteralPath $configPath) {
   try {
-    $config = Get-Content -LiteralPath $configPath -Raw | ConvertFrom-Json -AsHashtable
+    $config = ConvertFrom-JsonHashtable (Read-Utf8Text $configPath)
     $normalized = Normalize-PluginPath $pluginPath
 
     if ($config.Contains("plugins") -and $null -ne $config["plugins"]) {
@@ -127,7 +146,14 @@ $listed = $false
 $package = ""
 
 if (Test-Path -LiteralPath $cli) {
-  $plugins = Invoke-NativeText $cli @("plugin", "list")
+  # The background service can briefly miss a freshly added plugin (or be busy
+  # right after a restart), so retry before reporting a failure.
+  for ($attempt = 1; $attempt -le 3; $attempt++) {
+    $plugins = Invoke-NativeText $cli @("plugin", "list")
+    if ($plugins -match "(?m)^\s*enter-newline\s") { break }
+    Start-Sleep -Milliseconds 700
+  }
+
   $listed = [bool]($plugins -match "(?m)^\s*enter-newline\s")
   $line = ($plugins -split "`n" | Where-Object { $_ -match "enter-newline" } | Select-Object -First 1)
   $package = if ($line) { $line.Trim() } else { "" }
@@ -143,7 +169,7 @@ if ((Test-Path -LiteralPath $cli) -and (Test-Path -LiteralPath $pluginFile)) {
     $raw = Invoke-NativeText $cli @("api", "get", "/api/plugin/gui?id=enter-newline")
     $response = $raw | ConvertFrom-Json
     $served = Normalize-Text $response.data.code
-    $local = Normalize-Text (Get-Content -LiteralPath $pluginFile -Raw)
+    $local = Normalize-Text (Read-Utf8Text $pluginFile)
     $bundleOk = $served -eq $local
     $bundleDetail = if ($bundleOk) { "served bundle matches the local file" } else { "served bundle differs (restart/reload the app)" }
   } catch {
@@ -174,6 +200,8 @@ if ($Deep) {
 Write-Host ""
 Write-Host "OpenCode Desktop plugin verification"
 Write-Host "------------------------------------"
+Write-Host ("Desktop {0} / CLI {1}" -f $desktopVersion, $version)
+Write-Host ""
 
 foreach ($check in $checks) {
   $mark = if ($check.Ok) { "PASS" } else { "FAIL" }
@@ -193,6 +221,8 @@ if ($failed.Count -eq 0) {
     Write-Host "All checks passed, including the app-internal markers."
   }
 
+  Write-Host "Compatibility is decided by these checks, not by a version list:"
+  Write-Host "if the markers and the GUI plugin endpoint are present, this build works."
   exit 0
 }
 

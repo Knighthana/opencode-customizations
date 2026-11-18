@@ -1,8 +1,10 @@
 # Runs the plugin's behaviour tests in a headless Chromium browser.
 #
-#   pwsh -File .\desktop\shared\plugins\enter-newline\tests\test.ps1
+#   powershell -File .\desktop\shared\plugins\enter-newline\tests\test.ps1
+#   pwsh        -File .\desktop\shared\plugins\enter-newline\tests\test.ps1
 #
-# Requires Chrome or Edge. Exit code 0 = all tests passed.
+# Requires Chrome or Edge. Exit code 0 = all tests passed. Works on Windows
+# PowerShell 5.1 and PowerShell 7+.
 
 [CmdletBinding()]
 param()
@@ -10,6 +12,14 @@ param()
 $ErrorActionPreference = "Stop"
 
 $pluginDir = Split-Path -Parent $PSScriptRoot
+$compat = Join-Path $pluginDir "_compat.ps1"
+
+if (-not (Test-Path -LiteralPath $compat)) {
+  throw "shared helper not found: $compat"
+}
+
+. $compat
+
 $pluginFile = Join-Path $pluginDir "gui-experimental.cjs"
 $harness = Join-Path $PSScriptRoot "harness.html"
 
@@ -31,8 +41,8 @@ if (-not (Test-Path -LiteralPath $pluginFile)) {
   throw "plugin file not found: $pluginFile"
 }
 
-$source = Get-Content -LiteralPath $pluginFile -Raw
-$page = Get-Content -LiteralPath $harness -Raw
+$source = Read-Utf8Text $pluginFile
+$page = Read-Utf8Text $harness
 
 if ($page -notmatch [regex]::Escape("/*__PLUGIN_SOURCE__*/")) {
   throw "tests\harness.html is missing the /*__PLUGIN_SOURCE__*/ marker"
@@ -44,7 +54,7 @@ $profile = Join-Path ([IO.Path]::GetTempPath()) ("enter-newline-profile-{0}" -f 
 $stdout = Join-Path ([IO.Path]::GetTempPath()) ("enter-newline-out-{0}.txt" -f [guid]::NewGuid())
 $stderr = Join-Path ([IO.Path]::GetTempPath()) ("enter-newline-err-{0}.txt" -f [guid]::NewGuid())
 
-Set-Content -LiteralPath $temp -Value $page -Encoding utf8
+Write-Utf8Text $temp $page
 
 try {
   $uri = "file:///" + ($temp -replace "\\", "/")
@@ -59,7 +69,7 @@ try {
       $uri
     )
 
-  $dom = Get-Content -LiteralPath $stdout -Raw -Encoding utf8
+  $dom = Read-Utf8Text $stdout
 } finally {
   Remove-Item -LiteralPath $temp, $stdout, $stderr -Force -ErrorAction SilentlyContinue
   Remove-Item -LiteralPath $profile -Recurse -Force -ErrorAction SilentlyContinue

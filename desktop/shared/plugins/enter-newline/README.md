@@ -15,11 +15,24 @@ OpenCode Desktop GUI 插件：把输入框改成
 **Desktop / shared**（Windows、macOS、Linux 共用同一套插件逻辑），插件 id 为
 `enter-newline`（由目录名决定）。安装/自检脚本目前只在 Windows 上验证。
 
+## 要求
+
+- OpenCode Desktop（任意当前版本；兼容性由 `verify.ps1 -Deep` 的结构检查判定，
+  见 [`docs/compatibility.md`](../../../../docs/compatibility.md)）；
+- Windows PowerShell 5.1（Windows 自带）**或** PowerShell 7+，二选一即可；
+- 行为测试额外需要 Chrome 或 Edge。
+
+下面所有脚本都同时支持 `powershell`（5.1）和 `pwsh`（7+），用哪个都可以。
+
 ## 安装
 
-在仓库根目录执行：
+在仓库根目录执行（二选一）：
 
 ```powershell
+# Windows 自带 PowerShell 5.1
+powershell -File .\desktop\shared\plugins\enter-newline\install.ps1
+
+# PowerShell 7+
 pwsh -File .\desktop\shared\plugins\enter-newline\install.ps1
 ```
 
@@ -37,13 +50,15 @@ pwsh -File .\desktop\shared\plugins\enter-newline\install.ps1
 卸载：
 
 ```powershell
-pwsh -File .\desktop\shared\plugins\enter-newline\install.ps1 -Uninstall
+powershell -File .\desktop\shared\plugins\enter-newline\install.ps1 -Uninstall
+# 或：pwsh -File .\desktop\shared\plugins\enter-newline\install.ps1 -Uninstall
 ```
 
 ## 自检
 
 ```powershell
-pwsh -File .\desktop\shared\plugins\enter-newline\verify.ps1 -Deep
+powershell -File .\desktop\shared\plugins\enter-newline\verify.ps1 -Deep
+# 或：pwsh -File .\desktop\shared\plugins\enter-newline\verify.ps1 -Deep
 ```
 
 检查内容：
@@ -60,7 +75,8 @@ pwsh -File .\desktop\shared\plugins\enter-newline\verify.ps1 -Deep
 ## 行为测试
 
 ```powershell
-pwsh -File .\desktop\shared\plugins\enter-newline\tests\test.ps1
+powershell -File .\desktop\shared\plugins\enter-newline\tests\test.ps1
+# 或：pwsh -File .\desktop\shared\plugins\enter-newline\tests\test.ps1
 ```
 
 用无头 Chrome/Edge 加载插件，验证命令注册、Enter 换行、Ctrl+Enter 提交、
@@ -123,6 +139,7 @@ desktop/shared/plugins/enter-newline/
 ├─ gui-experimental.cjs   插件本体（CommonJS，无构建步骤）
 ├─ install.ps1            安装/卸载
 ├─ verify.ps1             安装状态与兼容性自检
+├─ _compat.ps1            5.1 / 7+ 共用的兼容层
 ├─ README.md
 └─ tests/
    ├─ harness.html
@@ -146,11 +163,23 @@ desktop/shared/plugins/enter-newline/
 升级 Desktop 后跑一次 `verify.ps1 -Deep` 即可确认。App 内部结构变化时，
 插件会安全退回默认 Enter 发送行为，不会让 Desktop 无法启动。
 
+### 为什么没有“支持版本号”
+
+版本号不是契约。插件真正需要的是：
+
+- GUI 插件端点（`/api/plugin/gui`）；
+- 四个 DOM/API 标记：`data-component="composer"`、
+  `data-component="composer-editor"`、`data-suggestion-id`、`insertLineBreak`。
+
+`verify.ps1 -Deep` 逐项检查这些结构，所以兼容性判断与版本号无关，也不需要
+每次 Desktop 更新后回来改一张版本表。`verify` 会打印 Desktop / CLI 版本，只为
+诊断和回溯；版本变了但结构没变，脚本依然全绿。
+
 ## 已知限制
 
 - GUI 插件 API 是 experimental，未来版本可能改动；
 - 依赖输入框内部 DOM 标记，不是公开 API；
 - 运行中的回合里，App 自带的 “Steer/Queue ⌘⏎” 提示文字仍可能出现；实际
   `Ctrl+Enter` 执行普通发送；
-- 目前只在 OpenCode Desktop `2.3.0` 上做了完整验证（见
-  [`docs/compatibility.md`](../../../../docs/compatibility.md)）。
+- 已在 OpenCode Desktop `2.3.0` 和 `2.3.2` 上完整验证；验证记录见
+  [`docs/compatibility.md`](../../../../docs/compatibility.md)。
