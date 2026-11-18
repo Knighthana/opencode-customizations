@@ -2,7 +2,7 @@
 
 ## Unreleased — 2026-11-18
 
-- 仓库重定义为 `opencode-customizations`：用于收集可分享、可交付的 OpenCode /
+- 仓库重定义为 `opencode-customizations`：用于收集可分享、可复用的 OpenCode /
   OpenCode Desktop 自定义，而不是只服务单个插件。
 - 按作用对象分目录：`desktop/shared`、`desktop/windows|macos|linux`、
   `cli-tui`、`mobile`、`web`；规则见 `docs/targets.md`。
@@ -13,6 +13,13 @@
 - 新增 `docs/compatibility.md`（兼容性判定方式、升级流程）和
   `docs/desktop-internals.md`（app.asar、GUI 插件加载、composer DOM、
   设置存储等调查笔记）。
+
+### 文档
+
+- 移除 README 中与仓库范围无关的说明，并把 changelog 里的“可交付”
+  统一为“可复用”。
+- 新增 `tools/check-public.ps1`：扫描私有语境引用、本机绝对路径和疑似凭据，
+  在 `docs/targets.md` 增加写作规则和提交前检查项。
 
 ### 兼容性
 
@@ -33,7 +40,7 @@
 
 ## enter-newline 1.0.0 — 2026-11-18
 
-- 首个可交付版本。
+- 首个可用版本。
 - `Enter` 插入换行，`Ctrl/Cmd+Enter` 发送，`Shift+Enter` 保持换行。
 - 保留补全列表、历史记录、斜杠命令、输入法组词和 `Alt+Enter` 的原有行为。
 - 提供 `install.ps1`（合并全局配置、备份、卸载）和 `verify.ps1`

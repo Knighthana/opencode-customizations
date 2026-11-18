@@ -69,6 +69,8 @@ opencode-customizations/
 │  ├─ compatibility.md
 │  ├─ desktop-internals.md
 │  └─ targets.md
+├─ tools/
+│  └─ check-public.ps1
 ├─ CHANGELOG.md
 ├─ LICENSE
 └─ README.md
@@ -86,7 +88,11 @@ opencode-customizations/
   `-Deep` 检查；
 - 在目标目录 README 和根 README 的表格里登记新条目；
 - 兼容性以 `verify.* -Deep` 的结构检查为准，`docs/compatibility.md` 只记录
-  历史验证样本，不维护版本白名单。
+  历史验证样本，不维护版本白名单；
+- 文档面向第一次打开仓库的人：README 只写“是什么、怎么装、怎么用、限制”，
+  不写仓库之间的关系、个人环境或内部规划；
+- 提交前跑 `powershell -File .\tools\check-public.ps1`，它会把私有语境引用、
+  本机绝对路径和疑似凭据拦下来。
 
 ## 兼容性
 

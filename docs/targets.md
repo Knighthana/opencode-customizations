@@ -44,6 +44,13 @@
 
 目录名 `<id>` 对 GUI 插件来说就是插件 id。
 
+## 写作规则
+
+- README 面向第一次打开仓库的人，只回答：这是什么、怎么装、怎么用、有什么限制。
+- 不写仓库之间的关系、个人环境、非公开记录、内部规划或草稿。
+- 技术调查笔记放 `docs/`，并且只保留可复用的结论，不贴本机路径和日志原文。
+- 提交前跑 `powershell -File .\tools\check-public.ps1`。
+
 ## 新增条目 checklist
 
 - [ ] 选对 target 目录（Desktop 先考虑 `shared`）。
@@ -55,3 +62,4 @@
 - [ ] 在目标目录的 README 和根 README 的表格里登记。
 - [ ] 兼容性以 `verify -Deep` 的结构检查为准；验证样本追加到
       `docs/compatibility.md`，不维护版本白名单。
+- [ ] 跑过 `tools/check-public.ps1`。
