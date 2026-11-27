@@ -2,6 +2,17 @@
 
 ## Unreleased — 2026-11-18
 
+### net-proxy
+
+- 新增 `desktop/shared/plugins/net-proxy`：输入框上方的代理开关，切换服务进程的
+  `HTTP(S)_PROXY`，没有守护进程、端口或开机启动项。
+- 服务端插件与 GUI 插件通过 RPC 通信；GUI 只负责显示和切换，环境变量、状态文件与
+  上游探测都在服务进程内完成。
+- 切换为 `proxy` 前探测上游，不可达时按直连运行；运行中不复检。
+- 多个 location 共享一份插件实例（引用计数），状态变化通过 RPC 事件推送，无轮询。
+- 提供 `install.ps1`、`verify.ps1`（含 `-Deep` 结构检查）和命令行开关
+  `net-proxy.ps1`。
+
 - 仓库重定义为 `opencode-customizations`：用于收集可分享、可复用的 OpenCode /
   OpenCode Desktop 自定义，而不是只服务单个插件。
 - 按作用对象分目录：`desktop/shared`、`desktop/windows|macos|linux`、

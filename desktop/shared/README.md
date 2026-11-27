@@ -25,3 +25,4 @@ PowerShell 7+，把宿主差异放进条目内的兼容层（`_compat.ps1`）。
 | 条目 | 说明 |
 | --- | --- |
 | [`plugins/enter-newline`](plugins/enter-newline/README.md) | `Enter` 换行、`Ctrl+Enter` 发送、`Shift+Enter` 换行 |
+| [`plugins/net-proxy`](plugins/net-proxy/README.md) | 输入框上方的代理开关；只改服务进程的环境变量 |

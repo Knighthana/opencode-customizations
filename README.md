@@ -8,7 +8,7 @@
 
 | 目录 | 作用对象 | 当前条目 |
 | --- | --- | --- |
-| [`desktop/shared/`](desktop/shared/README.md) | OpenCode Desktop，Windows/macOS/Linux 通用 | `enter-newline` |
+| [`desktop/shared/`](desktop/shared/README.md) | OpenCode Desktop，Windows/macOS/Linux 通用 | `enter-newline`、`net-proxy` |
 | [`desktop/windows/`](desktop/windows/README.md) | Desktop，Windows 专属 | 暂无 |
 | [`desktop/macos/`](desktop/macos/README.md) | Desktop，macOS 专属 | 暂无 |
 | [`desktop/linux/`](desktop/linux/README.md) | Desktop，Linux 专属 | 暂无 |
@@ -24,6 +24,7 @@
 | 条目 | 目标 | 作用 |
 | --- | --- | --- |
 | [`enter-newline`](desktop/shared/plugins/enter-newline/README.md) | Desktop / shared | `Enter` 换行、`Ctrl+Enter` 发送、`Shift+Enter` 换行 |
+| [`net-proxy`](desktop/shared/plugins/net-proxy/README.md) | Desktop / shared | 输入框上方的代理开关；改服务进程的代理变量，无守护进程 |
 
 ## 快速开始
 
@@ -31,10 +32,14 @@
 # 安装 enter-newline（Windows 自带的 PowerShell 5.1 即可，不需要 pwsh 7）
 powershell -File .\desktop\shared\plugins\enter-newline\install.ps1
 
+# 安装 net-proxy（输入框上方的代理开关）
+powershell -File .\desktop\shared\plugins\net-proxy\install.ps1
+
 # 让 Desktop 重新加载：先在窗口里按 Ctrl+R；没变化就重启 Desktop
 
 # 自检（含 Desktop app.asar 的内部标记）
 powershell -File .\desktop\shared\plugins\enter-newline\verify.ps1 -Deep
+powershell -File .\desktop\shared\plugins\net-proxy\verify.ps1 -Deep
 
 # 行为测试（无头 Chrome/Edge）
 powershell -File .\desktop\shared\plugins\enter-newline\tests\test.ps1
@@ -51,13 +56,21 @@ opencode-customizations/
 │  ├─ shared/
 │  │  ├─ README.md
 │  │  └─ plugins/
-│  │     └─ enter-newline/
+│  │     ├─ enter-newline/
+│  │     │  ├─ gui-experimental.cjs
+│  │     │  ├─ install.ps1
+│  │     │  ├─ verify.ps1
+│  │     │  ├─ _compat.ps1
+│  │     │  ├─ README.md
+│  │     │  └─ tests/
+│  │     └─ net-proxy/
+│  │        ├─ index.ts
+│  │        ├─ rpc.ts
 │  │        ├─ gui-experimental.cjs
 │  │        ├─ install.ps1
 │  │        ├─ verify.ps1
 │  │        ├─ _compat.ps1
-│  │        ├─ README.md
-│  │        └─ tests/
+│  │        └─ README.md
 │  ├─ windows/README.md
 │  ├─ macos/README.md
 │  ├─ linux/README.md
