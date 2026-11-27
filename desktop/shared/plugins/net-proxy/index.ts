@@ -178,15 +178,6 @@ async function createShared(ctx: { options: Record<string, unknown>; rpc: any })
     publish?.(snapshot())
   }
 
-  await apply("loaded")
-
-  watchFile(file, { interval: 1000 }, () => {
-    const next = readState(state)
-    if (next.mode === state.mode && next.upstream === state.upstream) return
-    state = next
-    void apply("reloaded")
-  })
-
   const registration = await ctx.rpc.register(NetProxy, {
     status: async () => snapshot(),
 
@@ -222,7 +213,17 @@ async function createShared(ctx: { options: Record<string, unknown>; rpc: any })
   publish = (value) => {
     void registration.events.emit("changed", value)
   }
-  publish(snapshot())
+
+  // Touch the environment only after the RPC is registered: if registration
+  // fails, the process is left exactly as it was.
+  await apply("loaded")
+
+  watchFile(file, { interval: 1000 }, () => {
+    const next = readState(state)
+    if (next.mode === state.mode && next.upstream === state.upstream) return
+    state = next
+    void apply("reloaded")
+  })
 
   return {
     dispose() {
